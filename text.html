@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiX Technologies</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Three.js Canvas Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 20px;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            animation: slideDown 1s ease-out;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        nav a {
+            color: rgba(0, 0, 0, 0.6);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: transform 0.3s;
+        }
+
+        nav a:hover {
+            color: #1a1a1a;
+        }
+
+        nav a:hover::before {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            background: transparent;
+            /* Transparent background */
+            /* Alternative: Uncomment the line below for a fully white background */
+            /* background: #ffffff; */
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            /* Reduced shadow for transparency */
+            overflow: hidden;
+        }
+
+        .hero-header {
+            margin-bottom: 30px;
+        }
+
+        .hero-title {
+            font-size: 54px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            /* Dark text for visibility on transparent/white background */
+            background: linear-gradient(90deg, #f9a8d4, #c084fc);
+            /* Light pink to light purple */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: #4b5563;
+            /* Dark gray for readability */
+            max-width: 700px;
+            margin: 0 auto 25px;
+            line-height: 1.5;
+        }
+
+        .date-time {
+            font-size: 16px;
+            color: #6b7280;
+            /* Medium gray for date/time */
+            margin-bottom: 30px;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .hero-button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s, color 0.3s;
+        }
+
+        .hero-button.free-consultation {
+            background: linear-gradient(90deg, #f9a8d4, #c084fc);
+            /* Light pink to light purple gradient */
+            color: #ffffff;
+        }
+
+        .hero-button.free-consultation:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(90deg, #f472b6, #a855f7);
+        }
+
+        .hero-button.see-solutions {
+            background: #93c5fd;
+            /* Light blue button */
+            color: #ffffff;
+        }
+
+        .hero-button.see-solutions:hover {
+            transform: translateY(-3px);
+            background: #60a5fa;
+        }
+
+        /* 3D Interactive Cards Container */
+        .cards-3d-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 80px 0;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.8s both;
+            perspective: 1000px;
+        }
+
+        .card-3d {
+            position: relative;
+            width: 280px;
+            height: 320px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-3d:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .card-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(245, 87, 108, 0.05));
+            border-radius: 30px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card-3d:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.3));
+        }
+
+        .card-label {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Products Section */
+        .products-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 60px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            color: #1a1a1a;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px 100px;
+        }
+
+        .product-card {
+            position: relative;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(50px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-card.visible {
+            animation: slideInFromBottom 0.8s ease-out forwards;
+        }
+
+        .product-card:nth-child(1).visible {
+            animation-delay: 0s;
+        }
+
+        .product-card:nth-child(2).visible {
+            animation-delay: 0.2s;
+        }
+
+        .product-card:nth-child(3).visible {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes slideInFromBottom {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--card-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-card:nth-child(1) {
+            --card-color: #667eea;
+        }
+
+        .product-card:nth-child(2) {
+            --card-color: #f5576c;
+        }
+
+        .product-card:nth-child(3) {
+            --card-color: #00f2fe;
+        }
+
+        .product-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--card-color);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--card-color), transparent);
+            border: 2px solid var(--card-color);
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            color: var(--card-color);
+        }
+
+        .product-card:hover .card-number {
+            transform: rotate(360deg) scale(1.1);
+            background: var(--card-color);
+            color: #ffffff;
+        }
+
+        .card-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: #1a1a1a;
+        }
+
+        .card-description {
+            font-size: 16px;
+            line-height: 1.7;
+            color: rgba(0, 0, 0, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .card-features {
+            list-style: none;
+        }
+
+        .card-features li {
+            padding: 12px 0;
+            padding-left: 30px;
+            font-size: 15px;
+            color: rgba(0, 0, 0, 0.7);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .card-features li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--card-color);
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover .card-features li::before {
+            transform: translateX(5px);
+        }
+
+        .card-features li:hover {
+            color: #1a1a1a;
+            padding-left: 35px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+            padding: 14px 28px;
+            background: var(--card-color);
+            border: 2px solid var(--card-color);
+            border-radius: 50px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            max-width: 1400px;
+            margin: 100px auto;
+            padding: 0 40px 100px;
+            text-align: center;
+            background: #1a2a44;
+            /* Dark background to match the image */
+            color: #d1d5db;
+            /* Light text color */
+        }
+
+        .testimonials-header .section-title {
+            font-size: 60px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            color: #f472b6;
+            /* Gradient-like pink text */
+            background: linear-gradient(90deg, #f472b6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .testimonials-header .section-subtitle {
+            font-size: 18px;
+            color: #9ca3af;
+            /* Light gray subtitle */
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .testimonials-carousel {
+            position: relative;
+            margin: 60px auto 0;
+            overflow: hidden;
+            max-width: 1200px;
+            /* Wider to accommodate multiple cards */
+        }
+
+        .testimonial-container {
+            position: relative;
+            height: 200px;
+            /* Adjusted height for single testimonial */
+        }
+
+        .testimonial-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px;
+            background: rgba(26, 42, 68, 0.8);
+            /* Semi-transparent dark background */
+            border: 1px solid rgba(91, 134, 229, 0.3);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            color: #d1d5db;
+            text-align: left;
+        }
+
+        .testimonial-card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #60a5fa;
+            /* Glowing blue base */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 0 10px #60a5fa, 0 0 20px #60a5fa;
+            /* Glowing effect */
+            flex-shrink: 0;
+        }
+
+        .author-info .author-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f472b6;
+            /* Pink accent */
+        }
+
+        .author-info .author-title {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(96, 165, 250, 0.3);
+            /* Light blue indicator */
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .indicator.active {
+            background: #60a5fa;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        /* Floating elements decoration */
+        .floating-shapes {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: floatShape 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border-radius: 50%;
+            top: 60%;
+            right: 15%;
+            animation-delay: 5s;
+        }
+
+        .shape-3 {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 10s;
+        }
+
+        @keyframes floatShape {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            h1 {
+                font-size: 60px;
+            }
+
+            .section-title {
+                font-size: 48px;
+            }
+
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                border-radius: 25px;
+                padding: 20px;
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            .hero-description {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .cards-3d-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .products-grid {
+                padding: 0 20px 60px;
+            }
+
+            .product-card {
+                padding: 35px;
+            }
+
+            .testimonials-section {
+                padding: 0 20px 60px;
+            }
+
+            .testimonial-container {
+                height: auto;
+            }
+
+            .testimonials-carousel {
+                max-width: 100%;
+            }
+
+            .testimonial-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <header>
+        <div class="logo">GiX TECHNOLOGIES</div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#products">Products</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero-section" id="home">
+        <div class="hero-header">
+            <h1 class="hero-title">
+                <span style="color: #93c5fd;">AI</span> Accelerate Growth with AI & IoT Innovation
+            </h1>
+            <p class="hero-subtitle">
+                Empower your business with cutting-edge AI and IoT solutions to optimize operations, boost engagement,
+                and drive sustainable success.
+            </p>
+            <p class="date-time">Today: Wednesday, October 15, 2025, 04:48 PM IST</p>
+        </div>
+        <div class="hero-buttons">
+            <button class="hero-button free-consultation">Get a Free Consultation</button>
+            <button class="hero-button see-solutions">See Our Solutions</button>
+        </div>
+    </section>
+
+    <div class="cards-3d-container">
+        <div class="card-3d">
+            <div class="card-icon">🤖</div>
+            <div class="card-label">AI-Powered</div>
+            <div class="card-desc">Intelligent Automation</div>
+        </div>
+
+        <div class="card-3d">
+            <div class="card-icon">⚡</div>
+            <div class="card-label">Real-Time</div>
+            <div class="card-desc">Instant Analytics</div>
+        </div>
+
+        <div class="card-3d">
+            <div class="card-icon">🚀</div>
+            <div class="card-label">Scalable</div>
+            <div class="card-desc">Enterprise Ready</div>
+        </div>
+    </div>
+
+    <div class="products-header">
+        <h2 class="section-title">Our Innovation Products</h2>
+        <p class="section-subtitle">Discover our suite of intelligent solutions designed to transform your business
+        </p>
+    </div>
+
+    <div class="products-grid">
+        <div class="product-card">
+            <div class="card-number">01</div>
+            <h3 class="card-title">TechDine - AI Restaurant Platform</h3>
+            <p class="card-description">
+                Revolutionize dining experiences with our AI-powered hospitality solution that eliminates friction
+                while delivering actionable business intelligence.
+            </p>
+            <ul class="card-features">
+                <li>Intelligent virtual assistant for seamless ordering</li>
+                <li>Real-time analytics and customer insights</li>
+                <li>Automated inventory management system</li>
+                <li>Predictive demand forecasting</li>
+            </ul>
+            <a href="#" class="cta-button">
+                Learn More
+                <span>→</span>
+            </a>
+        </div>
+
+        <div class="product-card">
+            <div class="card-number">02</div>
+            <h3 class="card-title">NFC Business Ecosystem</h3>
+            <p class="card-description">
+                Redefine professional engagement with smart NFC solutions that amplify digital presence and
+                streamline reputation management.
+            </p>
+            <ul class="card-features">
+                <li>Single-tap digital profile sharing</li>
+                <li>Enhanced networking capabilities</li>
+                <li>Integrated contact management system</li>
+                <li>Real-time engagement tracking</li>
+            </ul>
+            <a href="#" class="cta-button">
+                Learn More
+                <span>→</span>
+            </a>
+        </div>
+
+        <div class="product-card">
+            <div class="card-number">03</div>
+            <h3 class="card-title">Enterprise Management Suite</h3>
+            <p class="card-description">
+                Comprehensive business management platform with AI-powered analytics, real-time collaboration, and
+                integrated workflow automation.
+            </p>
+            <ul class="card-features">
+                <li>Advanced analytics dashboard</li>
+                <li>Collaborative team workspace</li>
+                <li>Intelligent workflow automation</li>
+                <li>Cloud-based scalability</li>
+            </ul>
+            <a href="#" class="cta-button">
+                Learn More
+                <span>→</span>
+            </a>
+        </div>
+    </div>
+
+    <section id="testimonials" class="testimonials-section">
+        <div class="testimonials-header">
+            <h2 class="section-title">What Our Clients Say</h2>
+            <p class="section-subtitle">Hear from businesses transformed by GiX Technologies</p>
+        </div>
+
+        <div class="testimonials-carousel">
+            <div class="testimonial-container">
+                <div class="testimonial-card active" data-index="0">
+                    <p class="testimonial-text">
+                        Their custom software solution streamlined our operations and boosted efficiency. GiX
+                        Technologies truly understands business needs and delivers tailor-made excellence.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MK</div>
+                        <div class="author-info">
+                            <div class="author-name">Ms. Manmeet Kaur</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-index="1">
+                    <p class="testimonial-text">
+                        The AI integration provided by GiX Technologies gave us a competitive edge. Their team is
+                        knowledgeable, responsive, and incredibly innovative.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">EL</div>
+                        <div class="author-info">
+                            <div class="author-name">Mr. Tarun Mishra</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card" data-index="2">
+                    <p class="testimonial-text">
+                        GiX Technologies' SEO and analytics services dramatically improved our search rankings and
+                        online visibility. We've seen a significant increase in organic traffic.
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">G</div>
+                        <div class="author-info">
+                            <div class="author-name">Ms Geetanjali</div>
+                            <div class="author-title">Marketing Director, Digital Ventures</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="carousel-indicators" id="indicators"></div>
+        </div>
+    </section>
+
+    <script>
+        // Intersection Observer for product cards
+        const observerOptions = {
+            threshold: 0.2
+        };
+
+        const productCards = document.querySelectorAll('.product-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        productCards.forEach(card => observer.observe(card));
+
+        // Testimonial Carousel
+        const testimonialCards = document.querySelectorAll('.testimonial-card');
+        const indicatorsContainer = document.getElementById('indicators');
+        let currentIndex = 0;
+        const intervalTime = 5000; // 5 seconds per testimonial
+
+        // Create indicators
+        testimonialCards.forEach((_, index) => {
+            const indicator = document.createElement('div');
+            indicator.classList.add('indicator');
+            if (index === 0) indicator.classList.add('active');
+            indicator.addEventListener('click', () => goToTestimonial(index));
+            indicatorsContainer.appendChild(indicator);
+        });
+
+        function showTestimonial(index) {
+            testimonialCards.forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextTestimonial() {
+            currentIndex = (currentIndex + 1) % testimonialCards.length;
+            showTestimonial(currentIndex);
+        }
+
+        function goToTestimonial(index) {
+            currentIndex = index;
+            showTestimonial(currentIndex);
+            clearInterval(autoRotate); // Reset interval on manual selection
+            autoRotate = setInterval(nextTestimonial, intervalTime);
+        }
+
+        // Auto-rotate testimonials
+        let autoRotate = setInterval(nextTestimonial, intervalTime);
+
+        // Pause rotation on hover
+        const carousel = document.querySelector('.testimonials-carousel');
+        carousel.addEventListener('mouseenter', () => clearInterval(autoRotate));
+        carousel.addEventListener('mouseleave', () => {
+            autoRotate = setInterval(nextTestimonial, intervalTime);
+        });
+    </script>
+</body>
+
+</html>
